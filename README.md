@@ -55,7 +55,7 @@ rag-complaint-chatbot/
 
 | Task | Description | Status |
 |---|---|---|
-| 1 | EDA & Data Preprocessing | 🔲 |
+| 1 | EDA & Data Preprocessing | ✅ |
 | 2 | Text Chunking, Embedding & Vector Store Indexing | 🔲 |
 | 3 | RAG Core Logic & Evaluation | 🔲 |
 | 4 | Interactive Chat Interface | 🔲 |
@@ -85,3 +85,38 @@ python app.py
 [Consumer Financial Protection Bureau (CFPB)](https://www.consumerfinance.gov/data-research/consumer-complaints/)
 complaint dataset, filtered to four product categories: Credit Card, Personal Loan,
 Savings Account, Money Transfer.
+
+## Task 1: EDA & Preprocessing Summary
+
+**Status:** ✅ Complete
+
+### Dataset Overview
+- **Source:** Full CFPB Consumer Complaint Database export, ~9.6M rows (~5GB CSV)
+- **Narrative coverage:** Only 31.0% of complaints (2,980,756 / 9,609,797) include a free-text consumer narrative
+- **Narrative length:** Median 114 words, mean 176 words, right-skewed with a max of 6,469 words
+
+### Filtering
+Filtered to four target product categories and removed records with empty narratives:
+
+| Product Category | Complaints |
+|---|---|
+| Credit Card | 189,334 |
+| Savings Account | 155,204 |
+| Money Transfer | 98,685 |
+| Personal Loan | 37,341 |
+| **Total** | **480,564** |
+
+Category distribution is imbalanced (~5:1 between largest and smallest category) this is carried forward into stratified sampling in Task 2.
+
+### Text Cleaning Pipeline
+Implemented in `src/preprocessing.py`, run via `notebooks/01_eda_preprocessing.ipynb`:
+
+1. **Noise removal** lowercasing, stripping URLs, phone numbers, HTML tags, CFPB redaction placeholders (`XXXX`), and punctuation
+2. **NLP normalization** tokenization, English stopword removal, and lemmatization (verbs + nouns) via NLTK
+
+Cleaning ran in ~10.5 minutes across 480,564 rows and removed only 4 records that became empty post-cleaning.
+
+### Outputs
+- Cleaned dataset: `data/processed/filtered_complaints.csv`
+- EDA visualizations: `data/processed/eda_product_distribution.png`, `data/processed/eda_narrative_length.png`
+- Unit tests: `tests/test_preprocessing.py` (15 tests covering text cleaning and product mapping)
