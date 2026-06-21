@@ -56,7 +56,7 @@ rag-complaint-chatbot/
 | Task | Description | Status |
 |---|---|---|
 | 1 | EDA & Data Preprocessing | ✅ |
-| 2 | Text Chunking, Embedding & Vector Store Indexing | 🔲 |
+| 2 | Text Chunking, Embedding & Vector Store Indexing | ✅ |
 | 3 | RAG Core Logic & Evaluation | 🔲 |
 | 4 | Interactive Chat Interface | 🔲 |
 
@@ -120,3 +120,38 @@ Cleaning ran in ~10.5 minutes across 480,564 rows and removed only 4 records tha
 - Cleaned dataset: `data/processed/filtered_complaints.csv`
 - EDA visualizations: `data/processed/eda_product_distribution.png`, `data/processed/eda_narrative_length.png`
 - Unit tests: `tests/test_preprocessing.py` (15 tests covering text cleaning and product mapping)
+
+## Task 2: Text Chunking, Embedding & Vector Store Indexing — Summary
+
+**Status:** ✅ Complete
+
+### Data Sampling, Chunking, and Vector Store Construction
+
+A stratified sample of **12,500 complaints** was drawn from the **480,564 cleaned complaints** produced in Task 1, preserving the original product-category distribution. The resulting sample contained:
+
+- **Credit Card:** 4,925 complaints (39.4%)
+- **Savings Account:** 4,037 complaints (32.3%)
+- **Money Transfer:** 2,567 complaints (20.5%)
+- **Personal Loan:** 971 complaints (7.8%)
+
+These proportions exactly match those of the full dataset, ensuring that the sample remains representative while reducing computational requirements for embedding and retrieval.
+
+Complaint narratives were segmented using LangChain's `RecursiveCharacterTextSplitter` with a **chunk size of 500 characters** and **50-character overlap**. This configuration was selected to balance context preservation with embedding specificity while maintaining consistency with the retrieval granularity used in the downstream RAG pipeline.
+
+The chunking process generated **23,114 text chunks** from the 12,500 sampled complaints, corresponding to an average of **1.85 chunks per complaint**.
+
+Chunks were embedded using the **`sentence-transformers/all-MiniLM-L6-v2`** model, a lightweight transformer model (~80 MB) that produces **384-dimensional dense vector embeddings** optimized for semantic similarity search. Embedding generation for all chunks required approximately **233 seconds**.
+
+The resulting embeddings were indexed into a persisted **ChromaDB** collection. Each chunk was stored together with metadata fields including:
+
+- `complaint_id`
+- `product_category`
+- `chunk_index`
+- `total_chunks`
+
+This metadata ensures complete traceability between retrieved chunks and their source complaints, supporting filtering, debugging, evaluation, and explainability throughout the RAG workflow.
+
+### Outputs
+- Vector store: `vector_store/` (persisted ChromaDB collection)
+- Pipeline code: `src/chunking.py`, `src/embedding.py`
+- Notebook: `notebooks/02_chunking_embedding.ipynb`
