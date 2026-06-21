@@ -24,8 +24,7 @@ ENV/
 # --- Data (large files; keep raw/processed data out of git) ---
 data/raw/*
 data/processed/*
-!data/raw/.gitkeep
-!data/processed/.gitkeep
+
 
 # --- Vector store (large index files; keep dir but not contents) ---
 vector_store/*
