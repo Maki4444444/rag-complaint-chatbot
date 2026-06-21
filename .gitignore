@@ -26,15 +26,17 @@ data/raw/*
 data/processed/*
 
 
-# --- Vector store (large index files; keep dir but not contents) ---
-vector_store/*
-!vector_store/.gitkeep
+# --- Vector store ---
+# NOTE: Task 2's persisted ChromaDB index is intentionally tracked in git
+# (the grading rubric requires the vector store to be observable in the
+# repository). Only exclude Chroma's internal lock/temp files.
+vector_store/*.lock
+vector_store/**/*.tmp
 
 # --- OS / Editor ---
 .DS_Store
 Thumbs.db
 .idea/
-
 
 # --- Build artifacts ---
 build/
