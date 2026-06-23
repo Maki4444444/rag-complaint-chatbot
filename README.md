@@ -57,8 +57,8 @@ rag-complaint-chatbot/
 |---|---|---|
 | 1 | EDA & Data Preprocessing | ✅ |
 | 2 | Text Chunking, Embedding & Vector Store Indexing | ✅ |
-| 3 | RAG Core Logic & Evaluation | 🔲 |
-| 4 | Interactive Chat Interface | 🔲 |
+| 3 | RAG Core Logic & Evaluation | ✅ |
+| 4 | Interactive Chat Interface | ✅ |
 
 ## Setup
 
@@ -88,7 +88,7 @@ Savings Account, Money Transfer.
 
 ## Task 1: EDA & Preprocessing Summary
 
-**Status:** ✅ Complete
+**Status:**  Complete
 
 ### Dataset Overview
 - **Source:** Full CFPB Consumer Complaint Database export, ~9.6M rows (~5GB CSV)
@@ -121,9 +121,9 @@ Cleaning ran in ~10.5 minutes across 480,564 rows and removed only 4 records tha
 - EDA visualizations: `data/processed/eda_product_distribution.png`, `data/processed/eda_narrative_length.png`
 - Unit tests: `tests/test_preprocessing.py` (15 tests covering text cleaning and product mapping)
 
-## Task 2: Text Chunking, Embedding & Vector Store Indexing — Summary
+## Task 2: Text Chunking, Embedding & Vector Store Indexing Summary
 
-**Status:** ✅ Complete
+**Status:**  Complete
 
 ### Data Sampling, Chunking, and Vector Store Construction
 
@@ -155,3 +155,66 @@ This metadata ensures complete traceability between retrieved chunks and their s
 - Vector store: `vector_store/` (persisted ChromaDB collection)
 - Pipeline code: `src/chunking.py`, `src/embedding.py`
 - Notebook: `notebooks/02_chunking_embedding.ipynb`
+
+## Task 3: Retrieval-Augmented Generation (RAG) Core Logic Summary
+
+**Status:**  Complete
+
+### Semantic Retrieval and Response Generation
+
+A Retrieval-Augmented Generation (RAG) pipeline was developed to enable natural-language question answering over customer complaint narratives. The system combines semantic search with a Large Language Model (LLM), allowing responses to be grounded in actual complaint data rather than relying solely on model knowledge.
+
+User questions are embedded using the same **`sentence-transformers/all-MiniLM-L6-v2`** model employed during vector store construction. These query embeddings are then matched against the persisted ChromaDB collection using cosine similarity search.
+
+The retriever supports both **cross-category retrieval** and **product-specific filtering**, enabling focused searches within:
+
+* **Credit Card**
+* **Savings Account**
+* **Money Transfer**
+* **Personal Loan**
+
+For each question, the top **5 most relevant complaint chunks** are retrieved and combined into a structured prompt containing complaint excerpts, complaint identifiers, and product-category information.
+
+Responses are generated using **Qwen2.5-7B-Instruct** via the Hugging Face Inference API. Retrieved complaint evidence is supplied as context to ensure answers remain grounded in customer narratives and accurately reflect the issues present in the dataset.
+
+The complete RAG pipeline was evaluated using representative complaint-analysis questions spanning all product categories. Evaluation included both qualitative review and embedding-based metrics assessing answer relevance, context utilization, and response faithfulness to retrieved evidence.
+
+### Outputs
+
+* Retriever module: `src/retriever.py`
+* Generator module: `src/generator.py`
+* Evaluation notebook: `notebooks/03_rag_pipeline.ipynb`
+* Prompt templates and retrieval logic
+* End-to-end RAG question-answering workflow
+
+## Task 4: Interactive Complaint Intelligence Chatbot Summary
+
+**Status:**  Complete
+
+### User Interface and Chat Application
+
+An interactive chatbot application was developed to provide a user-friendly interface for the RAG pipeline created in Task 3. The application enables users to explore customer complaints through natural-language conversations while maintaining full transparency into the retrieved evidence used to generate responses.
+
+The chatbot was implemented using **Gradio** and integrates the embedding model, ChromaDB vector store, retriever, and LLM components into a single end-to-end application.
+
+Users can submit free-form questions about customer complaints and optionally filter retrieval results by product category:
+
+* **Credit Card**
+* **Savings Account**
+* **Money Transfer**
+* **Personal Loan**
+* **All Categories**
+
+For each query, the system retrieves the top relevant complaint chunks, constructs a contextual prompt, and streams the generated response back to the interface in real time.
+
+To improve explainability and trustworthiness, a dedicated sources panel displays the retrieved complaint excerpts together with their associated complaint IDs, product categories, and similarity scores. This allows users to verify the evidence supporting each generated answer.
+
+The interface also includes example questions, conversation history, category filtering controls, and session reset functionality to enhance usability and support exploratory analysis of complaint trends.
+
+### Outputs
+
+* Chat application: `app.py`
+* Interactive Gradio interface
+* Real-time response streaming
+* Evidence and source display panel
+* End-to-end complaint intelligence chatbot
